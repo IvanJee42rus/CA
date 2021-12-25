@@ -88,6 +88,20 @@
                     <v-btn text @click="setCurrentStep(2)">Вернуться</v-btn>
                 </v-card-actions>
             </v-card>
+            <v-card class="mt-4" outlined v-if="resultMatrix.length">
+                <v-card-title>Обобщенная матрица</v-card-title>
+                <v-card-text>
+                    <v-card outlined>
+                        <v-card-text>
+                            <v-row :key="index" v-for="(row, index) in resultMatrix">
+                                <v-col :key="index" v-for="(col, index) in row">
+                                    {{ col }}
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                    </v-card>
+                </v-card-text>
+            </v-card>
         </v-stepper-content>
     </v-stepper>
 </template>
@@ -100,6 +114,7 @@
             countControl: 2,
             countExpert: 2,
             vector: [],
+            resultMatrix: [],
             controls: [],
             rules: {
                 required: (value) => (!!value || 'Обязательное поле')
@@ -138,7 +153,30 @@
                 this.setCurrentStep(2);
             },
             calculate() {
-                console.log('calc');
+                this.resultMatrix = [];
+
+                // плохо. посмотреть как заполнить матрицу нулями иначе
+                for (let i = 0; i < this.countControl; i++) {
+                    this.resultMatrix[i] = [];
+                    for (let j = 0; j < this.countControl; j++) {
+                        this.resultMatrix[i][j] = 0;
+                    }
+                }
+
+                for (let i = 0; i < this.vector.length; i++) {
+                    for (let j = 0; j < this.vector[i].length; j++) {
+                        for (let k = 0; k < this.vector[j].length; k++) {
+                            this.resultMatrix[j][k] += Number(this.vector[i][j][k]);
+                        }
+                    }
+                }
+
+                // плохо. лучше делать в предыдущем цикле, переделать
+                for (let i = 0; i < this.resultMatrix.length; i++) {
+                    for (let j = 0; j < this.resultMatrix[i].length; j++) {
+                        this.resultMatrix[i][j] = Math.round(this.resultMatrix[i][j] / Number(this.countExpert));
+                    }
+                }
             }
         }
     }
